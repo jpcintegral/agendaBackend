@@ -1,0 +1,73 @@
+{
+  "kind": "collectionType",
+  "collectionName": "events",
+  "info": {
+    "singularName": "event",
+    "pluralName": "events",
+    "displayName": "Event",
+    "description": "Eventos de la agenda política"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "startDateTime": {
+      "type": "datetime",
+      "required": true
+    },
+    "durationHours": {
+      "type": "decimal",
+      "required": true
+    },
+    "endDateTime": {
+      "type": "datetime"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "pendiente",
+        "aprobado",
+        "cancelado",
+        "considerando"
+      ],
+      "default": "pendiente"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "escolar",
+        "empresarial",
+        "deportivo",
+        "política",
+        "otros"
+      ]
+    },
+    "areas": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::area.area",
+      "inversedBy": "events"
+    },
+    "createdBy": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "approvedBy": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "attachments": {
+      "type": "media",
+      "multiple": true
+    }
+  }
+}

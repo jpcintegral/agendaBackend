@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "areas",
+  "info": {
+    "singularName": "area",
+    "pluralName": "areas",
+    "displayName": "Area",
+    "description": "Áreas involucradas en los eventos"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "members": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "plugin::users-permissions.user"
+    },
+    "events": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::event.event",
+      "mappedBy": "areas"
+    },
+    "users": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::users-permissions.user",
+      "mappedBy": "area"
+    }
+  }
+}
