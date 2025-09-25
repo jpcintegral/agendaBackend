@@ -30,7 +30,7 @@ export default {
     if (!io) return;
 
     // Si está aprobado
-    if (["aprobado", "considerando", "cancelado"].includes(result.status)) {
+    if (["aprobado", "considerando", "cancelado","pendiente"].includes(result.status)) {
       // Notificar a todas las áreas involucradas
       if (result.areas && result.areas.length > 0) {
         result.areas.forEach((area) => {
@@ -58,6 +58,8 @@ export default {
         status: result.status,
       });
     }
+
+    
 
     if(result.status === "cancelado") {
       io.to("secretarias").emit("evento-cancelado", {
