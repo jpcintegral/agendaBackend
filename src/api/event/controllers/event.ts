@@ -4,36 +4,34 @@ export default factories.createCoreController(
   ({ strapi }) => ({
 
     async approve(ctx) {
-      const { id } = ctx.params;
+      const { documentId } = ctx.params;
       const user = ctx.state.user;
 
       if (!user) return ctx.unauthorized('Debe estar autenticado');
 
       const event = await strapi.db.query('api::event.event').findOne({
-        where: { id },
+        where: { documentId},
         populate: { areas: true }
       });
 
       if (!event) return ctx.notFound('Evento no encontrado');
-
+      
       // Calcular endDateTime
       const start = new Date(event.startDateTime);
-      const end = new Date(start.getTime() + Number(event.durationHours) * 3600 * 1000);
+      const end = new Date(event.endDateTime);
 
       // Buscar conflictos
-      const areaIds = event.areas.map((a) => a.id);
+      //const areaIds = event.areas.map((a) => a.id);
       const conflicts = await strapi.db.query('api::event.event').findMany({
         where: {
           status: 'aprobado',
-          id: { $ne: id },
-          areas: { id: { $in: areaIds } },
           $and: [
             { startDateTime: { $lt: end.toISOString() } },
             { endDateTime: { $gt: start.toISOString() } }
           ]
         }
       });
-
+      
       if (conflicts.length > 0) {
         return ctx.badRequest('Conflicto de horario con otro evento aprobado', {
           conflicts,
@@ -42,11 +40,10 @@ export default factories.createCoreController(
       }
 
       // Si no hay conflictos → aprobar
-      const updated = await strapi.entityService.update('api::event.event', id, {
+      const updated = await strapi.entityService.update('api::event.event', event.id, {
         data: {
           status: 'aprobado',
-          approvedBy: user.id,
-          endDateTime: end.toISOString()
+          approvedBy: user.id
         },
         populate: { areas: true, createdBy: true, approvedBy: true }
       });
@@ -84,21 +81,36 @@ export default factories.createCoreController(
 
   async update(ctx) {
     const { id } = ctx.params;
-    const { startDateTime, endDateTime } = ctx.request.body.data;
+    const { data } = ctx.request.body;
+     console.log("ctx.params",data?.status);
 
+      if (data?.status === "aprobado") {
+      const event = await strapi.db.query('api::event.event').findOne({
+        where: { documentId: { $ne: id }}
+      });
+
+       if (!event) return ctx.notFound('Evento no encontrado');
+
+      // Calcular endDateTime
+      const start = new Date(event.startDateTime);
+      const end = new Date(event.endDateTime);
+
+    console.log("start",start);
+    console.log("end",end);
     const conflicts = await strapi.db.query('api::event.event').findMany({
       where: {
-        id: { $ne: id },
         status: 'aprobado',
-        $or: [
-          { startDateTime: { $lt: endDateTime }, endDateTime: { $gt: startDateTime } }
-        ]
+        $and: [
+            { startDateTime: { $lt: end.toISOString() } },
+            { endDateTime: { $gt: start.toISOString() } }
+          ]
       }
     });
 
     if (conflicts.length > 0) {
       return ctx.conflict('Conflicto de horarios con eventos aprobados', { conflicts });
     }
+  }
 
     return super.update(ctx);
   }

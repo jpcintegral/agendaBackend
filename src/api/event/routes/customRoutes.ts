@@ -2,7 +2,7 @@ export default {
   routes: [
     {
       method: 'POST',
-      path: '/events/:id/approve',
+      path: '/events/:documentId/approve',
       handler: 'api::event.event.approve'
     }
   ]
