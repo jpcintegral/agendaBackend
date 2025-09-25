@@ -10,6 +10,7 @@
   "options": {
     "draftAndPublish": false
   },
+  "pluginOptions": {},
   "attributes": {
     "title": {
       "type": "string",
@@ -31,13 +32,13 @@
     },
     "status": {
       "type": "enumeration",
+      "default": "pendiente",
       "enum": [
         "pendiente",
         "aprobado",
         "cancelado",
         "considerando"
-      ],
-      "default": "pendiente"
+      ]
     },
     "type": {
       "type": "enumeration",
@@ -55,11 +56,6 @@
       "target": "api::area.area",
       "inversedBy": "events"
     },
-    "createdBy": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "plugin::users-permissions.user"
-    },
     "approvedBy": {
       "type": "relation",
       "relation": "oneToOne",
@@ -68,6 +64,15 @@
     "attachments": {
       "type": "media",
       "multiple": true
+    },
+    "needsBudget": {
+      "type": "boolean",
+      "default": false
+    },
+    "estimatedBudget": {
+      "type": "decimal",
+      "required": false,
+      "default": 0
     }
   }
 }

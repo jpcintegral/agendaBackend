@@ -2,6 +2,7 @@ import { factories } from '@strapi/strapi';
 export default factories.createCoreController(
   'api::event.event',
   ({ strapi }) => ({
+
     async approve(ctx) {
       const { id } = ctx.params;
       const user = ctx.state.user;
@@ -36,7 +37,7 @@ export default factories.createCoreController(
       if (conflicts.length > 0) {
         return ctx.badRequest('Conflicto de horario con otro evento aprobado', {
           conflicts,
-          result: 'conflict', // 🔹 indicador claro
+          result: 'conflict', 
         });
       }
 
@@ -55,6 +56,53 @@ export default factories.createCoreController(
         result: 'approved', // 🔹 indicador claro
         event: updated,     // 🔹 objeto del evento aprobado
       });
+    },
+
+      async create(ctx) {
+    const { startDateTime, endDateTime } = ctx.request.body.data;
+
+    // Buscar conflictos con eventos aprobados
+    const conflicts = await strapi.db.query('api::event.event').findMany({
+      where: {
+        status: 'aprobado',
+        $or: [
+          {
+            startDateTime: { $lt: endDateTime },
+            endDateTime: { $gt: startDateTime }
+          }
+        ]
+      }
+    });
+
+    if (conflicts.length > 0) {
+      return ctx.conflict('Conflicto de horarios con eventos aprobados', { conflicts });
     }
+
+    // Si no hay conflicto, crear normalmente
+    return super.create(ctx);
+  },
+
+  async update(ctx) {
+    const { id } = ctx.params;
+    const { startDateTime, endDateTime } = ctx.request.body.data;
+
+    const conflicts = await strapi.db.query('api::event.event').findMany({
+      where: {
+        id: { $ne: id },
+        status: 'aprobado',
+        $or: [
+          { startDateTime: { $lt: endDateTime }, endDateTime: { $gt: startDateTime } }
+        ]
+      }
+    });
+
+    if (conflicts.length > 0) {
+      return ctx.conflict('Conflicto de horarios con eventos aprobados', { conflicts });
+    }
+
+    return super.update(ctx);
+  }
+
+
   })
 );
