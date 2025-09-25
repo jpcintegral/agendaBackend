@@ -12,7 +12,7 @@ export default {
     const io = require("socket.io")(strapi.server.httpServer, {
       cors: {
         origin: "*", // en prod cambia a tu dominio de Angular
-        methods: ["GET", "POST"],
+        methods: ["GET", "POST","PUT","DELETE"],
       },
     });
 

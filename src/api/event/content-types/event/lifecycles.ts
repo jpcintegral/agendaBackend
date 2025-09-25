@@ -30,7 +30,7 @@ export default {
     if (!io) return;
 
     // Si está aprobado
-    if (result.status === "aprobado") {
+    if (["aprobado", "considerando", "cancelado"].includes(result.status)) {
       // Notificar a todas las áreas involucradas
       if (result.areas && result.areas.length > 0) {
         result.areas.forEach((area) => {
@@ -51,12 +51,21 @@ export default {
     }
 
     // Si está considerado
-    if (result.status === "considerado") {
+    if (result.status === "considerando") {
       io.to("secretarias").emit("evento-considerado", {
         eventoId: result.id,
         titulo: result.titulo,
         status: result.status,
       });
     }
+
+    if(result.status === "cancelado") {
+      io.to("secretarias").emit("evento-cancelado", {
+        eventoId: result.id,
+        titulo: result.title,
+        status: result.status,
+      });
+    }
+
   },
 };
