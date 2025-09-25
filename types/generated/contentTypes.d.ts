@@ -419,6 +419,8 @@ export interface ApiEventEvent extends Struct.CollectionTypeSchema {
   };
   options: {
     draftAndPublish: false;
+    populateCreatorFields: true;
+    publicAttributes: ['created_at', 'updated_by'];
   };
   attributes: {
     approvedBy: Schema.Attribute.Relation<
@@ -428,8 +430,7 @@ export interface ApiEventEvent extends Struct.CollectionTypeSchema {
     areas: Schema.Attribute.Relation<'manyToMany', 'api::area.area'>;
     attachments: Schema.Attribute.Media<undefined, true>;
     createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'>;
     description: Schema.Attribute.Text;
     durationHours: Schema.Attribute.Decimal & Schema.Attribute.Required;
     endDateTime: Schema.Attribute.DateTime;
@@ -446,11 +447,17 @@ export interface ApiEventEvent extends Struct.CollectionTypeSchema {
       Schema.Attribute.DefaultTo<'pendiente'>;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     type: Schema.Attribute.Enumeration<
-      ['escolar', 'empresarial', 'deportivo', 'pol\u00EDtica', 'otros']
+      [
+        'privado',
+        'escolar',
+        'empresarial',
+        'deportivo',
+        'pol\u00EDtica',
+        'otros',
+      ]
     >;
     updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'>;
   };
 }
 
